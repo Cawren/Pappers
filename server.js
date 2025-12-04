@@ -55,7 +55,7 @@ Enterprise.init(
 class Activity extends Model {}
 Activity.init(
   {
-    id : {type:DataTypes.INTEGER, primaryKey:true},
+    id : {type:DataTypes.INTEGER, primaryKey:true, autoIncrement:true},
     EntityNumber: {type:DataTypes.STRING, allowNull:false},
     ActivityGroup : {type:DataTypes.INTEGER, allowNull:false} ,
     NaceVersion : DataTypes.INTEGER,
@@ -86,7 +86,7 @@ Establishment.init(
 class Denomination extends Model {}
 Denomination.init(
   {
-    id : {type:DataTypes.INTEGER, primaryKey:true},
+    id : {type:DataTypes.INTEGER, primaryKey:true, autoIncrement:true},
     EntityNumber: {type:DataTypes.STRING, allowNull:false},
     Language : DataTypes.INTEGER,
     TypeOfDenomination : DataTypes.INTEGER,
@@ -152,22 +152,22 @@ async function createEstablishment(body) {
 
 async function createDenomination(body) {
   try {
-         await Establishment.create({
-          EntityNumber: body.EstablishmentNumber,
+         await Denomination.create({
+          EntityNumber: body.EnterpriseNumber,
           Language: body.Language,
           TypeOfDenomination: body.TypeOfDenomination,
           Denomination: body.Denomination
          });
-        console.log("Establishment registered") ;
+        console.log("Denomination registered") ;
   } catch (err) {
-    console.error('Error creating establishment :', err.message);
+    console.error('Error creating denomination :', err.message);
   }
 }
 
 async function editEnterprise(id, body) {
   try {
         const enterprise = await Enterprise.findOne({ where: { EnterpriseNumber: id } });
-        enterprise.set({ 
+        enterprise.update({ 
           EnterpriseNumber: body.EnterpriseNumber,
           Status: body.Status,
           JuridicalSituation: body.JuridicalSituation,
@@ -175,40 +175,59 @@ async function editEnterprise(id, body) {
           JuridicalForm: body.JuridicalForm,
           JuridicalFormCAC: body.JuridicalFormCAC,
           StartDate: body.StartDate,
-         });
+          });
+        await enterprise.save()
         console.log("Enterprise updated") ;
   } catch (err) {
     console.error('Error updating enterprise :', err.message);
   }
 }
 
-async function editActivity(body) {
+async function editActivity(id, body) {
   try {
         const activity = await Activity.findOne({ where: { id: id } });
-        activity.set({ 
+        activity.update({ 
           EntityNumber: body.EnterpriseNumber,
           ActivityGroup : body.ActivityGroup,
           NaceVersion : body.NaceVersion,
           NaceCode : body.NaceCode,
           Classification : body.Classification
-         });
+          });
+        await activity.save()
         console.log("Activity updated") ;
   } catch (err) {
     console.error('Error updating activity :', err.message);
   }
 }
 
-async function editEstablishment(body) {
+async function editEstablishment(id, body) {
   try {
          const establishment = await Establishment.findOne({ where: { EstablishmentNumber: id } });
-         establishment.set({
+         establishment.update({
           EstablishmentNumber: body.EstablishmentNumber,
           EnterpriseNumber: body.EnterpriseNumber,
           StartDate: body.EstablishmentStartDate
-         });
+          });
+         await establishment.save()
         console.log("Establishment updated") ;
   } catch (err) {
     console.error('Error updating establishment :', err.message);
+  }
+}
+
+async function editDenomination(id, body) {
+  try {
+        const denomination = await Denomination.findOne({ where: { id: id } });
+        denomination.update({ 
+          EntityNumber: body.EnterpriseNumber,
+          Language: body.Language,
+          TypeOfDenomination: body.TypeOfDenomination,
+          Denomination: body.Denomination
+          });
+         await denomination.save() ;
+        console.log("Denomination updated") ;
+  } catch (err) {
+    console.error('Error updating denomination :', err.message);
   }
 }
 
@@ -315,6 +334,10 @@ app.put('/activity/:id', async (req, res) => {
 });
 app.put('/establishment/:id', async (req, res) => {
   await editEstablishment(req.params.id, req.body);
+  res.json({ success: true, message: 'Request treated' });
+});
+app.put('/denomination/:id', async (req, res) => {
+  await editDenomination(req.params.id, req.body);
   res.json({ success: true, message: 'Request treated' });
 });
 

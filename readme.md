@@ -10,6 +10,7 @@ Créer une dénomination : POST '/denomination'
 
 Remplir les données dans le body de la requête.
 Dans le cas de la création d'une entreprise, il est possible (et nécessaire, dans le cas d'une activité) d'intégrer immédiatement les données de la première activité, du premier établissement et de la première dénomination dans le body.
+Dans le cas de la création d'une activité ou d'une dénomination, renseigner le nom de l'entreprise comme "EnterpriseNumber" et non "EntityNumber".
 
 ### GET
 
